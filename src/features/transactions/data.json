@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1,
+    "header": "Monthly Rent Payment",
+    "type": "Rent",
+    "status": "In Process",
+    "target": "18000",
+    "limit": "55000",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 2,
+    "header": "Maintenance Fee",
+    "type": "Maintenance",
+    "status": "Done",
+    "target": "2900",
+    "limit": "24500",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 3,
+    "header": "Security Deposit Refund",
+    "type": "Refund",
+    "status": "Done",
+    "target": "10000",
+    "limit": "13000",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 4,
+    "header": "Rent Payment",
+    "type": "Rent",
+    "status": "Done",
+    "target": "27000",
+    "limit": "23000",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 5,
+    "header": "Late Fee",
+    "type": "Penalty",
+    "status": "In Process",
+    "target": "2000",
+    "limit": "16000",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 6,
+    "header": "Utility Bill Payment",
+    "type": "Utilities",
+    "status": "In Process",
+    "target": "20000",
+    "limit": "8000",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 7,
+    "header": "Cleaning Services",
+    "type": "Maintenance",
+    "status": "In Process",
+    "target": "19000",
+    "limit": "21000",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 8,
+    "header": "Plumbing Repair",
+    "type": "Maintenance",
+    "status": "Done",
+    "target": "25000",
+    "limit": "26000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 9,
+    "header": "Internet Bill",
+    "type": "Utilities",
+    "status": "Done",
+    "target": "7000",
+    "limit": "23000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 10,
+    "header": "Furniture Replacement",
+    "type": "Maintenance",
+    "status": "Done",
+    "target": "30000",
+    "limit": "28000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 11,
+    "header": "Service Charge",
+    "type": "Penalty",
+    "status": "Done",
+    "target": "9000",
+    "limit": "31000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 12,
+    "header": "Key Replacement",
+    "type": "Maintenance",
+    "status": "Done",
+    "target": "12000",
+    "limit": "4000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 13,
+    "header": "Parking Fee",
+    "type": "Penalty",
+    "status": "Done",
+    "target": "22000",
+    "limit": "33000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 14,
+    "header": "Access Card Activation",
+    "type": "Refund",
+    "status": "Done",
+    "target": "15000",
+    "limit": "34000",
+    "reviewer": "Assign reviewer"
+  },
+  {
+    "id": 15,
+    "header": "Lease Renewal",
+    "type": "Rent",
+    "status": "Done",
+    "target": "3000",
+    "limit": "35000",
+    "reviewer": "Assign reviewer"
+  }
+]
