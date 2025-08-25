@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import AuthLayout from '../auth-layout'
-import { SignUpForm } from './components/sign-up-form'
+import { SignUpWizard } from './components/sign-up-wizard'
 
 export default function SignUp() {
   return (
@@ -30,7 +30,7 @@ export default function SignUp() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignUpForm />
+          <SignUpWizard />
         </CardContent>
         <CardFooter>
           <p className='text-muted-foreground px-8 text-center text-sm'>

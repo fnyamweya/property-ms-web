@@ -31,16 +31,16 @@ import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedStaffIndexRouteImport } from './routes/_authenticated/staff/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
+import { Route as AuthenticatedPropertyManagementIndexRouteImport } from './routes/_authenticated/property-management/index'
 import { Route as AuthenticatedPropertiesIndexRouteImport } from './routes/_authenticated/properties/index'
 import { Route as AuthenticatedPaymentsIndexRouteImport } from './routes/_authenticated/payments/index'
-import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance/index'
+import { Route as AuthenticatedLocationsIndexRouteImport } from './routes/_authenticated/locations/index'
 import { Route as AuthenticatedLeaseAgreementIndexRouteImport } from './routes/_authenticated/lease-agreement/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedDocumentsIndexRouteImport } from './routes/_authenticated/documents/index'
 import { Route as AuthenticatedControlPanelIndexRouteImport } from './routes/_authenticated/control-panel/index'
 import { Route as AuthenticatedContactsIndexRouteImport } from './routes/_authenticated/contacts/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
-import { Route as AuthenticatedCalendarIndexRouteImport } from './routes/_authenticated/calendar/index'
 import { Route as AuthenticatedBalancesIndexRouteImport } from './routes/_authenticated/balances/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
@@ -51,10 +51,10 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedPropertiesOccupancyTrackerIndexRouteImport } from './routes/_authenticated/properties/occupancy-tracker/index'
-import { Route as AuthenticatedMaintenanceRecurringIndexRouteImport } from './routes/_authenticated/maintenance/recurring/index'
-import { Route as AuthenticatedMaintenanceLogsIndexRouteImport } from './routes/_authenticated/maintenance/logs/index'
+import { Route as AuthenticatedPropertiesCreateIndexRouteImport } from './routes/_authenticated/properties/create/index'
 import { Route as AuthenticatedPropertiesIdUnitsIndexRouteImport } from './routes/_authenticated/properties/$id/units/index'
 import { Route as AuthenticatedPropertiesIdTenantsIndexRouteImport } from './routes/_authenticated/properties/$id/tenants/index'
+import { Route as AuthenticatedPropertiesIdMrRequestsIndexRouteImport } from './routes/_authenticated/properties/$id/mr-requests/index'
 import { Route as AuthenticatedPropertiesIdInspectionsIndexRouteImport } from './routes/_authenticated/properties/$id/inspections/index'
 import { Route as AuthenticatedPropertiesIdFinancialsIndexRouteImport } from './routes/_authenticated/properties/$id/financials/index'
 import { Route as AuthenticatedPropertiesIdAssetsIndexRouteImport } from './routes/_authenticated/properties/$id/assets/index'
@@ -170,6 +170,12 @@ const AuthenticatedReportsIndexRoute =
     path: '/reports/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPropertyManagementIndexRoute =
+  AuthenticatedPropertyManagementIndexRouteImport.update({
+    id: '/property-management/',
+    path: '/property-management/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPropertiesIndexRoute =
   AuthenticatedPropertiesIndexRouteImport.update({
     id: '/properties/',
@@ -182,10 +188,10 @@ const AuthenticatedPaymentsIndexRoute =
     path: '/payments/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedMaintenanceIndexRoute =
-  AuthenticatedMaintenanceIndexRouteImport.update({
-    id: '/maintenance/',
-    path: '/maintenance/',
+const AuthenticatedLocationsIndexRoute =
+  AuthenticatedLocationsIndexRouteImport.update({
+    id: '/locations/',
+    path: '/locations/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLeaseAgreementIndexRoute =
@@ -223,12 +229,6 @@ const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCalendarIndexRoute =
-  AuthenticatedCalendarIndexRouteImport.update({
-    id: '/calendar/',
-    path: '/calendar/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedBalancesIndexRoute =
   AuthenticatedBalancesIndexRouteImport.update({
     id: '/balances/',
@@ -286,16 +286,10 @@ const AuthenticatedPropertiesOccupancyTrackerIndexRoute =
     path: '/properties/occupancy-tracker/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedMaintenanceRecurringIndexRoute =
-  AuthenticatedMaintenanceRecurringIndexRouteImport.update({
-    id: '/maintenance/recurring/',
-    path: '/maintenance/recurring/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMaintenanceLogsIndexRoute =
-  AuthenticatedMaintenanceLogsIndexRouteImport.update({
-    id: '/maintenance/logs/',
-    path: '/maintenance/logs/',
+const AuthenticatedPropertiesCreateIndexRoute =
+  AuthenticatedPropertiesCreateIndexRouteImport.update({
+    id: '/properties/create/',
+    path: '/properties/create/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPropertiesIdUnitsIndexRoute =
@@ -308,6 +302,12 @@ const AuthenticatedPropertiesIdTenantsIndexRoute =
   AuthenticatedPropertiesIdTenantsIndexRouteImport.update({
     id: '/properties/$id/tenants/',
     path: '/properties/$id/tenants/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPropertiesIdMrRequestsIndexRoute =
+  AuthenticatedPropertiesIdMrRequestsIndexRouteImport.update({
+    id: '/properties/$id/mr-requests/',
+    path: '/properties/$id/mr-requests/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPropertiesIdInspectionsIndexRoute =
@@ -353,28 +353,28 @@ export interface FileRoutesByFullPath {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/balances': typeof AuthenticatedBalancesIndexRoute
-  '/calendar': typeof AuthenticatedCalendarIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/contacts': typeof AuthenticatedContactsIndexRoute
   '/control-panel': typeof AuthenticatedControlPanelIndexRoute
   '/documents': typeof AuthenticatedDocumentsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/lease-agreement': typeof AuthenticatedLeaseAgreementIndexRoute
-  '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
+  '/locations': typeof AuthenticatedLocationsIndexRoute
   '/payments': typeof AuthenticatedPaymentsIndexRoute
   '/properties': typeof AuthenticatedPropertiesIndexRoute
+  '/property-management': typeof AuthenticatedPropertyManagementIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/staff': typeof AuthenticatedStaffIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/transactions': typeof AuthenticatedTransactionsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
-  '/maintenance/logs': typeof AuthenticatedMaintenanceLogsIndexRoute
-  '/maintenance/recurring': typeof AuthenticatedMaintenanceRecurringIndexRoute
+  '/properties/create': typeof AuthenticatedPropertiesCreateIndexRoute
   '/properties/occupancy-tracker': typeof AuthenticatedPropertiesOccupancyTrackerIndexRoute
   '/properties/$id/assets': typeof AuthenticatedPropertiesIdAssetsIndexRoute
   '/properties/$id/financials': typeof AuthenticatedPropertiesIdFinancialsIndexRoute
   '/properties/$id/inspections': typeof AuthenticatedPropertiesIdInspectionsIndexRoute
+  '/properties/$id/mr-requests': typeof AuthenticatedPropertiesIdMrRequestsIndexRoute
   '/properties/$id/tenants': typeof AuthenticatedPropertiesIdTenantsIndexRoute
   '/properties/$id/units': typeof AuthenticatedPropertiesIdUnitsIndexRoute
 }
@@ -400,28 +400,28 @@ export interface FileRoutesByTo {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/balances': typeof AuthenticatedBalancesIndexRoute
-  '/calendar': typeof AuthenticatedCalendarIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/contacts': typeof AuthenticatedContactsIndexRoute
   '/control-panel': typeof AuthenticatedControlPanelIndexRoute
   '/documents': typeof AuthenticatedDocumentsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/lease-agreement': typeof AuthenticatedLeaseAgreementIndexRoute
-  '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
+  '/locations': typeof AuthenticatedLocationsIndexRoute
   '/payments': typeof AuthenticatedPaymentsIndexRoute
   '/properties': typeof AuthenticatedPropertiesIndexRoute
+  '/property-management': typeof AuthenticatedPropertyManagementIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/staff': typeof AuthenticatedStaffIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/transactions': typeof AuthenticatedTransactionsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
-  '/maintenance/logs': typeof AuthenticatedMaintenanceLogsIndexRoute
-  '/maintenance/recurring': typeof AuthenticatedMaintenanceRecurringIndexRoute
+  '/properties/create': typeof AuthenticatedPropertiesCreateIndexRoute
   '/properties/occupancy-tracker': typeof AuthenticatedPropertiesOccupancyTrackerIndexRoute
   '/properties/$id/assets': typeof AuthenticatedPropertiesIdAssetsIndexRoute
   '/properties/$id/financials': typeof AuthenticatedPropertiesIdFinancialsIndexRoute
   '/properties/$id/inspections': typeof AuthenticatedPropertiesIdInspectionsIndexRoute
+  '/properties/$id/mr-requests': typeof AuthenticatedPropertiesIdMrRequestsIndexRoute
   '/properties/$id/tenants': typeof AuthenticatedPropertiesIdTenantsIndexRoute
   '/properties/$id/units': typeof AuthenticatedPropertiesIdUnitsIndexRoute
 }
@@ -452,28 +452,28 @@ export interface FileRoutesById {
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/balances/': typeof AuthenticatedBalancesIndexRoute
-  '/_authenticated/calendar/': typeof AuthenticatedCalendarIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/contacts/': typeof AuthenticatedContactsIndexRoute
   '/_authenticated/control-panel/': typeof AuthenticatedControlPanelIndexRoute
   '/_authenticated/documents/': typeof AuthenticatedDocumentsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/lease-agreement/': typeof AuthenticatedLeaseAgreementIndexRoute
-  '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
+  '/_authenticated/locations/': typeof AuthenticatedLocationsIndexRoute
   '/_authenticated/payments/': typeof AuthenticatedPaymentsIndexRoute
   '/_authenticated/properties/': typeof AuthenticatedPropertiesIndexRoute
+  '/_authenticated/property-management/': typeof AuthenticatedPropertyManagementIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/staff/': typeof AuthenticatedStaffIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/transactions/': typeof AuthenticatedTransactionsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
-  '/_authenticated/maintenance/logs/': typeof AuthenticatedMaintenanceLogsIndexRoute
-  '/_authenticated/maintenance/recurring/': typeof AuthenticatedMaintenanceRecurringIndexRoute
+  '/_authenticated/properties/create/': typeof AuthenticatedPropertiesCreateIndexRoute
   '/_authenticated/properties/occupancy-tracker/': typeof AuthenticatedPropertiesOccupancyTrackerIndexRoute
   '/_authenticated/properties/$id/assets/': typeof AuthenticatedPropertiesIdAssetsIndexRoute
   '/_authenticated/properties/$id/financials/': typeof AuthenticatedPropertiesIdFinancialsIndexRoute
   '/_authenticated/properties/$id/inspections/': typeof AuthenticatedPropertiesIdInspectionsIndexRoute
+  '/_authenticated/properties/$id/mr-requests/': typeof AuthenticatedPropertiesIdMrRequestsIndexRoute
   '/_authenticated/properties/$id/tenants/': typeof AuthenticatedPropertiesIdTenantsIndexRoute
   '/_authenticated/properties/$id/units/': typeof AuthenticatedPropertiesIdUnitsIndexRoute
 }
@@ -503,28 +503,28 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/apps'
     | '/balances'
-    | '/calendar'
     | '/chats'
     | '/contacts'
     | '/control-panel'
     | '/documents'
     | '/help-center'
     | '/lease-agreement'
-    | '/maintenance'
+    | '/locations'
     | '/payments'
     | '/properties'
+    | '/property-management'
     | '/reports'
     | '/settings/'
     | '/staff'
     | '/tasks'
     | '/transactions'
     | '/users'
-    | '/maintenance/logs'
-    | '/maintenance/recurring'
+    | '/properties/create'
     | '/properties/occupancy-tracker'
     | '/properties/$id/assets'
     | '/properties/$id/financials'
     | '/properties/$id/inspections'
+    | '/properties/$id/mr-requests'
     | '/properties/$id/tenants'
     | '/properties/$id/units'
   fileRoutesByTo: FileRoutesByTo
@@ -550,28 +550,28 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/apps'
     | '/balances'
-    | '/calendar'
     | '/chats'
     | '/contacts'
     | '/control-panel'
     | '/documents'
     | '/help-center'
     | '/lease-agreement'
-    | '/maintenance'
+    | '/locations'
     | '/payments'
     | '/properties'
+    | '/property-management'
     | '/reports'
     | '/settings'
     | '/staff'
     | '/tasks'
     | '/transactions'
     | '/users'
-    | '/maintenance/logs'
-    | '/maintenance/recurring'
+    | '/properties/create'
     | '/properties/occupancy-tracker'
     | '/properties/$id/assets'
     | '/properties/$id/financials'
     | '/properties/$id/inspections'
+    | '/properties/$id/mr-requests'
     | '/properties/$id/tenants'
     | '/properties/$id/units'
   id:
@@ -601,28 +601,28 @@ export interface FileRouteTypes {
     | '/clerk/_authenticated/user-management'
     | '/_authenticated/apps/'
     | '/_authenticated/balances/'
-    | '/_authenticated/calendar/'
     | '/_authenticated/chats/'
     | '/_authenticated/contacts/'
     | '/_authenticated/control-panel/'
     | '/_authenticated/documents/'
     | '/_authenticated/help-center/'
     | '/_authenticated/lease-agreement/'
-    | '/_authenticated/maintenance/'
+    | '/_authenticated/locations/'
     | '/_authenticated/payments/'
     | '/_authenticated/properties/'
+    | '/_authenticated/property-management/'
     | '/_authenticated/reports/'
     | '/_authenticated/settings/'
     | '/_authenticated/staff/'
     | '/_authenticated/tasks/'
     | '/_authenticated/transactions/'
     | '/_authenticated/users/'
-    | '/_authenticated/maintenance/logs/'
-    | '/_authenticated/maintenance/recurring/'
+    | '/_authenticated/properties/create/'
     | '/_authenticated/properties/occupancy-tracker/'
     | '/_authenticated/properties/$id/assets/'
     | '/_authenticated/properties/$id/financials/'
     | '/_authenticated/properties/$id/inspections/'
+    | '/_authenticated/properties/$id/mr-requests/'
     | '/_authenticated/properties/$id/tenants/'
     | '/_authenticated/properties/$id/units/'
   fileRoutesById: FileRoutesById
@@ -798,6 +798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/property-management/': {
+      id: '/_authenticated/property-management/'
+      path: '/property-management'
+      fullPath: '/property-management'
+      preLoaderRoute: typeof AuthenticatedPropertyManagementIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/properties/': {
       id: '/_authenticated/properties/'
       path: '/properties'
@@ -812,11 +819,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaymentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/maintenance/': {
-      id: '/_authenticated/maintenance/'
-      path: '/maintenance'
-      fullPath: '/maintenance'
-      preLoaderRoute: typeof AuthenticatedMaintenanceIndexRouteImport
+    '/_authenticated/locations/': {
+      id: '/_authenticated/locations/'
+      path: '/locations'
+      fullPath: '/locations'
+      preLoaderRoute: typeof AuthenticatedLocationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lease-agreement/': {
@@ -859,13 +866,6 @@ declare module '@tanstack/react-router' {
       path: '/chats'
       fullPath: '/chats'
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/calendar/': {
-      id: '/_authenticated/calendar/'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof AuthenticatedCalendarIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/balances/': {
@@ -938,18 +938,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPropertiesOccupancyTrackerIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/maintenance/recurring/': {
-      id: '/_authenticated/maintenance/recurring/'
-      path: '/maintenance/recurring'
-      fullPath: '/maintenance/recurring'
-      preLoaderRoute: typeof AuthenticatedMaintenanceRecurringIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/maintenance/logs/': {
-      id: '/_authenticated/maintenance/logs/'
-      path: '/maintenance/logs'
-      fullPath: '/maintenance/logs'
-      preLoaderRoute: typeof AuthenticatedMaintenanceLogsIndexRouteImport
+    '/_authenticated/properties/create/': {
+      id: '/_authenticated/properties/create/'
+      path: '/properties/create'
+      fullPath: '/properties/create'
+      preLoaderRoute: typeof AuthenticatedPropertiesCreateIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/properties/$id/units/': {
@@ -964,6 +957,13 @@ declare module '@tanstack/react-router' {
       path: '/properties/$id/tenants'
       fullPath: '/properties/$id/tenants'
       preLoaderRoute: typeof AuthenticatedPropertiesIdTenantsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/properties/$id/mr-requests/': {
+      id: '/_authenticated/properties/$id/mr-requests/'
+      path: '/properties/$id/mr-requests'
+      fullPath: '/properties/$id/mr-requests'
+      preLoaderRoute: typeof AuthenticatedPropertiesIdMrRequestsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/properties/$id/inspections/': {
@@ -1018,27 +1018,27 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedBalancesIndexRoute: typeof AuthenticatedBalancesIndexRoute
-  AuthenticatedCalendarIndexRoute: typeof AuthenticatedCalendarIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedContactsIndexRoute: typeof AuthenticatedContactsIndexRoute
   AuthenticatedControlPanelIndexRoute: typeof AuthenticatedControlPanelIndexRoute
   AuthenticatedDocumentsIndexRoute: typeof AuthenticatedDocumentsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedLeaseAgreementIndexRoute: typeof AuthenticatedLeaseAgreementIndexRoute
-  AuthenticatedMaintenanceIndexRoute: typeof AuthenticatedMaintenanceIndexRoute
+  AuthenticatedLocationsIndexRoute: typeof AuthenticatedLocationsIndexRoute
   AuthenticatedPaymentsIndexRoute: typeof AuthenticatedPaymentsIndexRoute
   AuthenticatedPropertiesIndexRoute: typeof AuthenticatedPropertiesIndexRoute
+  AuthenticatedPropertyManagementIndexRoute: typeof AuthenticatedPropertyManagementIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
   AuthenticatedStaffIndexRoute: typeof AuthenticatedStaffIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTransactionsIndexRoute: typeof AuthenticatedTransactionsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
-  AuthenticatedMaintenanceLogsIndexRoute: typeof AuthenticatedMaintenanceLogsIndexRoute
-  AuthenticatedMaintenanceRecurringIndexRoute: typeof AuthenticatedMaintenanceRecurringIndexRoute
+  AuthenticatedPropertiesCreateIndexRoute: typeof AuthenticatedPropertiesCreateIndexRoute
   AuthenticatedPropertiesOccupancyTrackerIndexRoute: typeof AuthenticatedPropertiesOccupancyTrackerIndexRoute
   AuthenticatedPropertiesIdAssetsIndexRoute: typeof AuthenticatedPropertiesIdAssetsIndexRoute
   AuthenticatedPropertiesIdFinancialsIndexRoute: typeof AuthenticatedPropertiesIdFinancialsIndexRoute
   AuthenticatedPropertiesIdInspectionsIndexRoute: typeof AuthenticatedPropertiesIdInspectionsIndexRoute
+  AuthenticatedPropertiesIdMrRequestsIndexRoute: typeof AuthenticatedPropertiesIdMrRequestsIndexRoute
   AuthenticatedPropertiesIdTenantsIndexRoute: typeof AuthenticatedPropertiesIdTenantsIndexRoute
   AuthenticatedPropertiesIdUnitsIndexRoute: typeof AuthenticatedPropertiesIdUnitsIndexRoute
 }
@@ -1048,25 +1048,24 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedBalancesIndexRoute: AuthenticatedBalancesIndexRoute,
-  AuthenticatedCalendarIndexRoute: AuthenticatedCalendarIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedContactsIndexRoute: AuthenticatedContactsIndexRoute,
   AuthenticatedControlPanelIndexRoute: AuthenticatedControlPanelIndexRoute,
   AuthenticatedDocumentsIndexRoute: AuthenticatedDocumentsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedLeaseAgreementIndexRoute: AuthenticatedLeaseAgreementIndexRoute,
-  AuthenticatedMaintenanceIndexRoute: AuthenticatedMaintenanceIndexRoute,
+  AuthenticatedLocationsIndexRoute: AuthenticatedLocationsIndexRoute,
   AuthenticatedPaymentsIndexRoute: AuthenticatedPaymentsIndexRoute,
   AuthenticatedPropertiesIndexRoute: AuthenticatedPropertiesIndexRoute,
+  AuthenticatedPropertyManagementIndexRoute:
+    AuthenticatedPropertyManagementIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
   AuthenticatedStaffIndexRoute: AuthenticatedStaffIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTransactionsIndexRoute: AuthenticatedTransactionsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
-  AuthenticatedMaintenanceLogsIndexRoute:
-    AuthenticatedMaintenanceLogsIndexRoute,
-  AuthenticatedMaintenanceRecurringIndexRoute:
-    AuthenticatedMaintenanceRecurringIndexRoute,
+  AuthenticatedPropertiesCreateIndexRoute:
+    AuthenticatedPropertiesCreateIndexRoute,
   AuthenticatedPropertiesOccupancyTrackerIndexRoute:
     AuthenticatedPropertiesOccupancyTrackerIndexRoute,
   AuthenticatedPropertiesIdAssetsIndexRoute:
@@ -1075,6 +1074,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedPropertiesIdFinancialsIndexRoute,
   AuthenticatedPropertiesIdInspectionsIndexRoute:
     AuthenticatedPropertiesIdInspectionsIndexRoute,
+  AuthenticatedPropertiesIdMrRequestsIndexRoute:
+    AuthenticatedPropertiesIdMrRequestsIndexRoute,
   AuthenticatedPropertiesIdTenantsIndexRoute:
     AuthenticatedPropertiesIdTenantsIndexRoute,
   AuthenticatedPropertiesIdUnitsIndexRoute:

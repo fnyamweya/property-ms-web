@@ -18,6 +18,34 @@ export const apiConfig: ApiConfig = {
     [ENDPOINTS.CREATE_USER]: '/users',
     [ENDPOINTS.ME]: '/auth/me',
     [ENDPOINTS.LOGOUT]: '/auth/logout',
+
+    [ENDPOINTS.GET_LOCATIONS]: '/locations',
+    [ENDPOINTS.GET_LOCATION]: '/locations/:id',
+    [ENDPOINTS.CREATE_LOCATION]: '/locations',
+    [ENDPOINTS.UPDATE_LOCATION]: '/locations/:id',
+    [ENDPOINTS.DELETE_LOCATION]: '/locations/:id',
+    [ENDPOINTS.RESTORE_LOCATION]: '/locations/:id/restore',
+    [ENDPOINTS.GET_LOCATION_PARENTS]: '/locations/parents',
+    [ENDPOINTS.GET_LOCATION_CHILDREN]: '/locations/children',
+
+    // Property endpoints. These are stubbed paths for demonstration. When
+    // connecting to a real backend, ensure the routes match your API
+    // contract. By default we assume RESTful semantics with plural
+    // collections and singular resources distinguished by an ID parameter.
+    [ENDPOINTS.GET_PROPERTIES]: '/properties',
+    [ENDPOINTS.GET_PROPERTY]: '/properties/:id',
+    [ENDPOINTS.CREATE_PROPERTY]: '/properties',
+    [ENDPOINTS.UPDATE_PROPERTY]: '/properties/:id',
+    [ENDPOINTS.DELETE_PROPERTY]: '/properties/:id',
+    [ENDPOINTS.RESTORE_PROPERTY]: '/properties/:id/restore',
+
+    [ENDPOINTS.GET_PROPERTY_UNITS]: '/properties/:id/units',
+    [ENDPOINTS.GET_PROPERTY_UNIT]: '/properties/:id/units/:unitId',
+    [ENDPOINTS.CREATE_PROPERTY_UNIT]: '/properties/:id/units',
+    [ENDPOINTS.UPDATE_PROPERTY_UNIT]: '/properties/:id/units/:unitId',
+    [ENDPOINTS.DELETE_PROPERTY_UNIT]: '/properties/:id/units/:unitId',
+    [ENDPOINTS.RESTORE_PROPERTY_UNIT]: '/properties/:id/units/:unitId/restore',
+    [ENDPOINTS.GET_PROPERTY_UNIT_BY_NUMBER]: '/properties/:id/units/by-number',
   },
   defaultHeaders: {
     Accept: 'application/json',

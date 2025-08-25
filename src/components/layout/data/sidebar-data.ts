@@ -11,6 +11,8 @@ import {
   IconTool,
   IconUserCog,
   IconUsers,
+  IconMapPin,
+  IconHome,
 } from '@tabler/icons-react'
 import {
   AudioWaveform,
@@ -167,6 +169,16 @@ export const sidebarData: SidebarData = {
           title: 'Help Center',
           url: '/help-center',
           icon: IconHelp,
+        },
+      ],
+    },
+    {
+      title: 'Administration',
+      items: [
+        {
+          title: 'Locations',
+          url: '/locations',
+          icon: IconMapPin,
         },
       ],
     },

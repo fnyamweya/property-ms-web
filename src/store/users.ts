@@ -4,12 +4,11 @@
  * users from the backend. Consumers can use this hook directly or via
  * selectors in specialised hooks.
  */
-
-import { create } from 'zustand'
 import { apiClient } from '@/api'
-import { ENDPOINTS } from '@/constants/endpoints'
 import type { User } from '@/types/user'
+import { create } from 'zustand'
 import { parseError } from '@/utils/errorParser'
+import { ENDPOINTS } from '@/constants/endpoints'
 
 export type UsersStatus = 'idle' | 'loading' | 'error'
 
@@ -34,8 +33,12 @@ export const useUsersStore = create<UsersState>((set) => ({
     set({ status: 'loading', error: undefined })
     try {
       const data = await apiClient.request<User[]>({
-        endpointKey: ENDPOINTS.GET_USERS,
-        method: 'GET',
+        endpointKey: ENDPOINTS.CREATE_USER,
+        method: 'POST',
+        body: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 10,
+        },
         queryParams: params as any,
       })
       set({ users: data, status: 'idle', error: undefined })
