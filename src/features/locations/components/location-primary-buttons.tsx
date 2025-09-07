@@ -1,4 +1,4 @@
-import { IconDownload, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { useLocations } from '../context/locations-context'
 

@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { SearchProvider } from '@/context/search-context'
 import { useAuth } from '@/hooks/useAuth'
+import { isJwtExpired } from '@/utils/jwt'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import SkipToMain from '@/components/skip-to-main'
@@ -15,14 +16,16 @@ interface Props {
 export function AuthenticatedLayout({ children }: Props) {
   const defaultOpen = Cookies.get('sidebar_state') !== 'false'
   const navigate = useNavigate()
-  const { accessToken } = useAuth()
+  const { accessToken, logout } = useAuth()
 
   // Redirect unauthenticated users back to the sign‑in page.
   React.useEffect(() => {
-    if (!accessToken) {
+    // Redirect unauthenticated or expired sessions to sign-in
+    if (!accessToken || isJwtExpired(accessToken)) {
+      logout()
       navigate({ to: '/sign-in', replace: true })
     }
-  }, [accessToken, navigate])
+  }, [accessToken, logout, navigate])
 
   return (
     <SearchProvider>

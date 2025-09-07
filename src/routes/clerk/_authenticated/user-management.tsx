@@ -43,7 +43,7 @@ function UserManagement() {
   }
 
   // Parse user list
-  const userList = userListSchema.parse(users)
+  const userList = userListSchema.parse(users as any)
   return (
     <>
       <SignedIn>
@@ -90,7 +90,7 @@ function UserManagement() {
               <UsersPrimaryButtons />
             </div>
             <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
-              <UsersTable data={userList} columns={columns} />
+              <UsersTable data={userList.data} columns={columns} />
             </div>
           </Main>
 

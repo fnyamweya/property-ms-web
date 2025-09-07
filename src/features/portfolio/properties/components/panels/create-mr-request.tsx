@@ -77,8 +77,6 @@ type FormApi = UseFormReturn<RequestForm, any, RequestForm> // ✅ unify RHF gen
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  pid: string
-  uid: string
   unitIdentifier?: string
   assignees?: Assignee[]
   categories?: string[]
@@ -91,8 +89,6 @@ type Props = {
 export function CreateMRRequestDialog({
   open,
   onOpenChange,
-  pid,
-  uid,
   unitIdentifier,
   assignees = [],
   categories = [

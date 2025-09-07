@@ -16,7 +16,6 @@ import {
   Undo2,
   Trash2,
   AlertTriangle,
-  CircleDot,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,14 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type MRStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed'
 type MRPriority = 'Low' | 'Medium' | 'High' | 'Urgent'
@@ -188,9 +180,8 @@ export function UnitMRRequests({
                 size='sm'
                 onClick={() =>
                   navigate({
-                    to: '/properties/$pid/units/$uid',
-                    params: { pid, uid },
-                    // If you have a details route, adjust accordingly
+                    to: '/properties/$id/units',
+                    params: { id: pid },
                   })
                 }
                 className='gap-1 px-2'

@@ -47,7 +47,7 @@ type PropertyForm = z.infer<typeof formSchema>
 export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow
   const form = useForm<PropertyForm>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: currentRow
       ? {
           name: currentRow.name,
@@ -96,11 +96,11 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
         <Form {...form}>
           <form
             id='property-form'
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(form.handleSubmit as any)(onSubmit)}
             className='flex-1 space-y-5 px-4'
           >
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='name'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
@@ -113,7 +113,7 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
               )}
             />
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='propertyType'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
@@ -139,7 +139,7 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
               )}
             />
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='unitsCount'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
@@ -158,7 +158,7 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
               )}
             />
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='isActive'
               render={({ field }) => (
                 <FormItem className='flex items-center justify-between rounded-md border p-3'>
@@ -176,7 +176,7 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
               )}
             />
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='country'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
@@ -189,7 +189,7 @@ export function PropertyMutateDrawer({ open, onOpenChange, currentRow }: Props) 
               )}
             />
             <FormField
-              control={form.control}
+              control={(form as any).control}
               name='city'
               render={({ field }) => (
                 <FormItem className='space-y-1'>

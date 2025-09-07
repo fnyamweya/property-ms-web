@@ -38,8 +38,6 @@ import {
 } from './create-mr-request'
 
 type Props = {
-  pid: string
-  uid: string
   unit: any
   onClose?: () => void
 }
@@ -106,13 +104,13 @@ function dueLabel(dueAt?: string | Date) {
     : { text: `Due in ${hours}h`, tone: 'secondary' as const }
 }
 
-export function UnitMRRequestsPanel({ pid, uid, unit, onClose }: Props) {
+export function UnitMRRequestsPanel({ unit, onClose }: Props) {
   const [requests, setRequests] = React.useState<MR[]>(
     () => (unit?.mrRequests ?? []) as MR[]
   )
   React.useEffect(() => {
     setRequests((unit?.mrRequests ?? []) as MR[])
-  }, [uid, unit?.mrRequests])
+  }, [unit?.mrRequests])
 
   /** Create side panel */
   const [openCreate, setOpenCreate] = React.useState(false)
@@ -139,7 +137,7 @@ export function UnitMRRequestsPanel({ pid, uid, unit, onClose }: Props) {
     setRequests((prev) => [optimistic, ...prev])
 
     try {
-      await sendCreateMR(pid, uid, input) // replace with real API
+      await sendCreateMR(input) // replace with real API
       toast.success('Maintenance request created', {
         description: `“${input.title}” has been logged.`,
       })
@@ -568,8 +566,6 @@ export function UnitMRRequestsPanel({ pid, uid, unit, onClose }: Props) {
       <CreateMRRequestDialog
         open={openCreate}
         onOpenChange={setOpenCreate}
-        pid={pid}
-        uid={uid}
         unitIdentifier={unit?.unitIdentifier}
         assignees={unit?.assignees ?? []}
         categories={[
@@ -620,10 +616,6 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 }
 
 /** Example API stub */
-async function sendCreateMR(
-  pid: string,
-  uid: string,
-  input: CreateMRRequestInput
-) {
+async function sendCreateMR(_input: CreateMRRequestInput) {
   await new Promise((r) => setTimeout(r, 500))
 }

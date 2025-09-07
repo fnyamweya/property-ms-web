@@ -14,6 +14,14 @@ export interface Property {
     open: number
     inProgress: number
   }
+
+  /** Optional list of maintenance requests for demo/mock data */
+  mrRequests?: Array<{
+    id: string
+    status: 'Open' | 'In Progress' | 'Resolved' | 'Closed'
+    unitIdentifier?: string
+    [k: string]: unknown
+  }>
 }
 
 /** A unit inside a property (UI-facing type) */
@@ -44,7 +52,11 @@ export interface Unit {
 
   /** Lease expiration date (if leased) */
   leaseEndDate?: Date
+
+  /** Optional raw metadata from the backend (for expandable details) */
+  metadata?: UnitMetadata
 }
+
 
 /** Shape of metadata returned from backend for a unit */
 export interface UnitMetadata {

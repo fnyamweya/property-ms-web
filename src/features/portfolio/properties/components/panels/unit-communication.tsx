@@ -10,13 +10,11 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 
 type Props = {
-  pid: string
-  uid: string
   unit: any
   onClose?: () => void
 }
 
-export function UnitCommunicationPanel({ pid, uid, unit, onClose }: Props) {
+export function UnitCommunicationPanel({ unit, onClose }: Props) {
   const [channel, setChannel] = React.useState<'sms' | 'email'>('sms')
   const [to, setTo] = React.useState<string>((unit as any).tenantPhone ?? '')
   const [subject, setSubject] = React.useState<string>('')

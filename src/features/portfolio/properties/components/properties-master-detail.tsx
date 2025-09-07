@@ -2,10 +2,12 @@
 
 import * as React from 'react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useOrganizationsStore } from '@/store/organizations'
 import { usePropertiesStore } from '@/store/properties'
 import type { Property as ApiProperty } from '@/types/property'
 import { Building2 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
+import { ConfirmDialog } from '@/components/confirm-dialog'
 import { usePropertyUnits } from '@/hooks/usePropertyUnits'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -31,6 +33,11 @@ function toUI(p: ApiProperty): UIProperty {
 
   const propertyType = (p as any).type ?? (p as any).propertyType ?? 'Unknown'
 
+  const ownerId =
+    (p as any).ownerId ??
+    (Array.isArray(p.owners) && (p.owners[0] as any)?.id) ??
+    ''
+
   return {
     id: p.id,
     name: p.name,
@@ -38,7 +45,7 @@ function toUI(p: ApiProperty): UIProperty {
     address,
     units: [] as any,
     imageUrl: (p as any).imageUrl ?? '',
-    ownerId: (p as any).ownerId ?? '',
+    ownerId,
     mrRequestCounts: (p as any).mrRequestCounts ?? 0,
   }
 }
@@ -59,12 +66,18 @@ export function PropertiesMasterDetail() {
       }))
     )
 
-  const didFetch = React.useRef(false)
+  // Current organization context
+  const organizationId = useOrganizationsStore((s) => s.selectedId)
+
+  // Fetch every time the selected organization changes
   React.useEffect(() => {
-    if (didFetch.current) return
-    didFetch.current = true
-    fetchProperties({ page: 1, limit: 100 })
-  }, [fetchProperties])
+    if (!organizationId) return
+    // Clear selection so the new list drives next selection
+    setSelectedId(null)
+    // Reset units cache marker
+    setUnitsLoadedFor(null)
+    fetchProperties({ page: 1, limit: 100, organizationId }).catch(() => {})
+  }, [organizationId, fetchProperties])
 
   const items = React.useMemo<UIProperty[]>(
     () => (properties ?? []).map(toUI),
@@ -81,8 +94,10 @@ export function PropertiesMasterDetail() {
   const [isSwitching, startSwitch] = React.useTransition()
 
   React.useEffect(() => {
-    if (!selectedId && items.length) setSelectedId(fromUrl ?? items[0].id)
-  }, [items, selectedId, fromUrl])
+    if (items.length === 0) return
+    const exists = !!selectedId && items.some((p) => p.id === selectedId)
+    if (!exists) setSelectedId(items[0].id)
+  }, [items, selectedId])
 
   React.useEffect(() => {
     if (!selectedId) return
@@ -92,8 +107,21 @@ export function PropertiesMasterDetail() {
       .catch(() => {})
   }, [selectedId, unitsLoadedFor, fetchUnits])
 
+  // Confirm before switching property
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const pendingIdRef = React.useRef<string | null>(null)
   const select = React.useCallback((id: string) => {
-    startSwitch(() => setSelectedId(id))
+    pendingIdRef.current = id
+    setConfirmOpen(true)
+  }, [])
+  const confirmSelect = React.useCallback(() => {
+    const id = pendingIdRef.current
+    if (id) startSwitch(() => setSelectedId(id))
+    setConfirmOpen(false)
+  }, [])
+  const cancelSelect = React.useCallback(() => {
+    pendingIdRef.current = null
+    setConfirmOpen(false)
   }, [])
 
   const selected = React.useMemo<UIProperty | null>(() => {
@@ -141,22 +169,15 @@ export function PropertiesMasterDetail() {
     if (e.key === 'ArrowUp' && idx > 0) select(orderedIds[idx - 1])
   }
 
-  const canSyncPropertyId = React.useMemo(
-    () => Object.prototype.hasOwnProperty.call(searchObj, 'propertyId'),
-    [searchObj]
-  )
+  // Keep URL in sync with current selection for deep-linking
   React.useEffect(() => {
-    if (!canSyncPropertyId) return
-    const current = selectedId ?? undefined
-    const urlParam = fromUrl ?? undefined
-    if (current !== urlParam) {
-      navigate({
-        search: true,
-        params: true,
-        replace: true,
-      })
-    }
-  }, [canSyncPropertyId, selectedId, fromUrl, navigate])
+    if (!selectedId) return
+    navigate({
+      to: '.',
+      replace: true,
+      search: (old: Record<string, unknown>) => ({ ...old, propertyId: selectedId }),
+    })
+  }, [selectedId, navigate])
 
   if (fetchStatus === 'loading') {
     return (
@@ -178,6 +199,37 @@ export function PropertiesMasterDetail() {
     return (
       <div className='p-6 text-sm text-red-600'>
         Failed to load properties: {String(fetchError ?? 'Unknown error')}
+      </div>
+    )
+  }
+
+  // Empty state when an organization has no properties
+  if (fetchStatus === 'idle' && items.length === 0) {
+    return (
+      <div className='grid min-h-0 grid-cols-1 gap-6 lg:grid-cols-[360px_minmax(0,1fr)]'>
+        <div className='min-h-0 overflow-hidden p-3'>
+          <div className='text-muted-foreground px-2 py-6 text-xs'>
+            No properties for this organization.
+          </div>
+        </div>
+        <Card className='h-[calc(100dvh-80px)] overflow-hidden'>
+          <div className='flex h-full items-center justify-center p-10 text-center'>
+            <div className='mx-auto max-w-sm space-y-3'>
+              <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
+                <Building2 className='h-6 w-6 opacity-60' />
+              </div>
+              <h3 className='text-lg font-semibold'>No properties yet</h3>
+              <p className='text-muted-foreground text-sm'>
+                Create your first property for this organization.
+              </p>
+              <div className='pt-1'>
+                <Button asChild>
+                  <a href='/properties/create'>Create property</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     )
   }
@@ -213,6 +265,15 @@ export function PropertiesMasterDetail() {
           )}
         </Card>
       </div>
+      {/* Confirm switch */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(o) => (o ? setConfirmOpen(true) : cancelSelect())}
+        title='Open property?'
+        desc='This will switch the active property context.'
+        confirmText='Open'
+        handleConfirm={confirmSelect}
+      />
     </div>
   )
 }
@@ -238,7 +299,6 @@ function EmptyState() {
     </div>
   )
 }
-
 function PanelSkeleton() {
   return (
     <div className='flex h-full flex-col'>

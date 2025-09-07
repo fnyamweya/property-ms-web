@@ -1,6 +1,9 @@
 'use client'
 
 import * as React from 'react'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Wrench,
   CreditCard,
@@ -12,9 +15,18 @@ import {
   CalendarDays,
   Home,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { usePropertyUnits } from '@/hooks/usePropertyUnits'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -38,10 +50,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+//
 import type { Property } from '../types'
 import { UnitCommunicationPanel } from './panels/unit-communication'
 import { UnitMRRequestsPanel } from './panels/unit-mr-request'
 import { UnitPaymentsPanel } from './panels/unit-payments'
+import { UnitEditDrawer } from './unit-edit-drawer'
+import { PropertyEditDrawer } from './property-edit-drawer'
+import { UnitLeaseDrawer } from './unit-lease-drawer'
 
 const statusBadge: Record<string, string> = {
   Occupied:
@@ -57,7 +73,9 @@ type Unit = Property['units'][number]
 type PanelType = 'mr' | 'payments' | 'comm'
 
 export function UnitsPanel({ property }: { property: Property }) {
-  const { units, total, status, fetchUnits } = usePropertyUnits(property.id)
+  const { units, total, status, fetchUnits, createUnit } = usePropertyUnits(
+    property.id
+  )
 
   React.useEffect(() => {
     fetchUnits({ propertyId: property.id, page: 1, limit: 100 }).catch(() => {})
@@ -66,21 +84,21 @@ export function UnitsPanel({ property }: { property: Property }) {
   const totalCount = total || units.length
   const occ = totalCount
     ? Math.round(
-        (units.filter((u) => u.status === 'Occupied').length / totalCount) * 100
+        (units.filter((u: Unit) => u.status === 'Occupied').length / totalCount) * 100
       )
     : 0
 
   const income = units.reduce(
-    (s, u) => s + Number(u.currentLeaseAmount ?? 0),
+    (s: number, u: Unit) => s + Number(u.currentLeaseAmount ?? 0),
     0
   )
 
   const [search, setSearch] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<string>('all')
 
-  const filteredUnits = React.useMemo(() => {
+  const filteredUnits = React.useMemo<Unit[]>(() => {
     const q = search.trim().toLowerCase()
-    return units.filter((u) => {
+    return (units as Unit[]).filter((u: Unit) => {
       const matchesSearch =
         q === '' ||
         u.unitIdentifier.toLowerCase().includes(q) ||
@@ -115,7 +133,7 @@ export function UnitsPanel({ property }: { property: Property }) {
     return () => io.disconnect()
   }, [filteredUnits.length])
 
-  const rows = filteredUnits.slice(0, visible)
+  const rows: Unit[] = filteredUnits.slice(0, visible) as Unit[]
 
   const [openId, setOpenId] = React.useState<string | null>(null)
   const toggle = (id: string) => setOpenId((curr) => (curr === id ? null : id))
@@ -125,8 +143,50 @@ export function UnitsPanel({ property }: { property: Property }) {
     unit: Unit | null
   }>({ type: null, unit: null })
 
+  // Lease drawer
+  const [leaseDrawerOpen, setLeaseDrawerOpen] = React.useState(false)
+  const [leaseUnit, setLeaseUnit] = React.useState<Unit | null>(null)
+
   const openPanel = (type: PanelType, unit: Unit) => setPanel({ type, unit })
   const closePanel = () => setPanel({ type: null, unit: null })
+
+  // Edit drawer state
+  const [editOpen, setEditOpen] = React.useState(false)
+  const [editUnit, setEditUnit] = React.useState<Unit | null>(null)
+  const [propEditOpen, setPropEditOpen] = React.useState(false)
+
+  // Create unit drawer
+  const [createOpen, setCreateOpen] = React.useState(false)
+  const [meta, setMeta] = React.useState<Record<string, unknown>>({})
+  const unitSchema = z.object({
+    unitNumber: z.string().min(1, 'Unit number'),
+    name: z.string().optional(),
+    isListed: z.boolean().default(false),
+  })
+  type UnitValues = z.infer<typeof unitSchema>
+  const unitForm = useForm<UnitValues>({
+    resolver: zodResolver(unitSchema) as any,
+    defaultValues: { unitNumber: '', isListed: false },
+  })
+  async function submitUnit(values: UnitValues) {
+    try {
+      const md = meta && typeof meta === 'object' ? meta : {}
+      const ui = await createUnit(property.id, {
+        unitNumber: values.unitNumber,
+        name: values.name,
+        isListed: values.isListed,
+        metadata: Object.keys(md as any).length ? md : undefined,
+      } as any)
+      toast.success('Unit created', { description: `#${ui.unitIdentifier}` })
+      setCreateOpen(false)
+      unitForm.reset({ unitNumber: '', isListed: false, name: undefined })
+      setMeta({})
+    } catch (e: any) {
+      toast.error('Failed to create unit', {
+        description: String(e?.message ?? 'Unknown error'),
+      })
+    }
+  }
 
   type MR = {
     id: string
@@ -185,6 +245,12 @@ export function UnitsPanel({ property }: { property: Property }) {
               </SelectItem>
             </SelectContent>
           </Select>
+          <Button variant='outline' onClick={() => setPropEditOpen(true)}>
+            Edit property
+          </Button>
+          <Button variant='default' onClick={() => setCreateOpen(true)}>
+            Add unit
+          </Button>
         </div>
       </div>
 
@@ -206,6 +272,7 @@ export function UnitsPanel({ property }: { property: Property }) {
               const isOpen = openId === u.id
               const mrCount = getMRCount(u.unitIdentifier)
               const leaseEnd = u.leaseEndDate
+              const md: any = (u as any).metadata ?? {}
 
               return (
                 <React.Fragment key={u.id}>
@@ -336,6 +403,28 @@ export function UnitsPanel({ property }: { property: Property }) {
                                 <MessageSquare className='mr-2 h-4 w-4' />
                                 Communication
                               </Button>
+                              <Button
+                                variant='default'
+                                size='sm'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setLeaseUnit(u)
+                                  setLeaseDrawerOpen(true)
+                                }}
+                              >
+                                Manage Lease
+                              </Button>
+                              <Button
+                                variant='default'
+                                size='sm'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setEditUnit(u)
+                                  setEditOpen(true)
+                                }}
+                              >
+                                Edit
+                              </Button>
                             </div>
                           </div>
 
@@ -376,6 +465,40 @@ export function UnitsPanel({ property }: { property: Property }) {
                             />
                             <Detail label='Property' value={property.name} />
                             <Detail label='Address' value={property.address} />
+                            {/* Common metadata surfaced as first-class fields */}
+                            {'bedrooms' in md && (
+                              <Detail
+                                label='Bedrooms'
+                                value={String(md.bedrooms)}
+                              />
+                            )}
+                            {'bathrooms' in md && (
+                              <Detail
+                                label='Bathrooms'
+                                value={String(md.bathrooms)}
+                              />
+                            )}
+                            {'sizeSqFt' in md && (
+                              <Detail
+                                label='Area (sq ft)'
+                                value={String(md.sizeSqFt)}
+                              />
+                            )}
+                            {'meterNumber' in md && (
+                              <Detail
+                                label='Meter Number'
+                                value={String(md.meterNumber)}
+                              />
+                            )}
+                            {'parking' in md && (
+                              <Detail
+                                label='Parking'
+                                value={String(md.parking)}
+                              />
+                            )}
+                            {'notes' in md && (
+                              <Detail label='Notes' value={String(md.notes)} />
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -390,7 +513,16 @@ export function UnitsPanel({ property }: { property: Property }) {
                   colSpan={5}
                   className='text-muted-foreground text-center text-sm'
                 >
-                  {status === 'loading' ? 'Loading…' : 'No units found.'}
+                  {status === 'loading' ? (
+                    'Loading…'
+                  ) : (
+                    <div className='flex flex-col items-center gap-2 py-4'>
+                      <span>No units found.</span>
+                      <Button size='sm' onClick={() => setCreateOpen(true)}>
+                        Create first unit
+                      </Button>
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -422,29 +554,94 @@ export function UnitsPanel({ property }: { property: Property }) {
 
           <div className='mt-4'>
             {panel.type === 'mr' && panel.unit && (
-              <UnitMRRequestsPanel
-                pid={property.id}
-                uid={panel.unit.id}
-                unit={panel.unit}
-                onClose={closePanel}
-              />
+              <UnitMRRequestsPanel unit={panel.unit} onClose={closePanel} />
             )}
             {panel.type === 'payments' && panel.unit && (
-              <UnitPaymentsPanel
-                pid={property.id}
-                uid={panel.unit.id}
-                unit={panel.unit}
-                onClose={closePanel}
-              />
+              <UnitPaymentsPanel unit={panel.unit} propertyId={property.id} onClose={closePanel} />
             )}
             {panel.type === 'comm' && panel.unit && (
-              <UnitCommunicationPanel
-                pid={property.id}
-                uid={panel.unit.id}
-                unit={panel.unit}
-                onClose={closePanel}
-              />
+              <UnitCommunicationPanel unit={panel.unit} onClose={closePanel} />
             )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Lease Drawer */}
+      {leaseUnit && (
+        <UnitLeaseDrawer
+          open={leaseDrawerOpen}
+          onOpenChange={(o) => {
+            setLeaseDrawerOpen(o)
+            if (!o) setLeaseUnit(null)
+          }}
+          pid={property.id}
+          uid={leaseUnit.id}
+          unitNumber={leaseUnit.unitIdentifier}
+          onSaved={undefined}
+        />
+      )}
+
+      {/* Edit Unit Drawer */}
+      <UnitEditDrawer
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        pid={property.id}
+        unit={editUnit}
+      />
+
+      {/* Edit Property Drawer */}
+      <PropertyEditDrawer
+        open={propEditOpen}
+        onOpenChange={setPropEditOpen}
+        property={{ id: property.id, name: property.name, propertyType: property.propertyType, isListed: (property as any).isListed, description: (property as any).description }}
+      />
+
+      {/* Create Unit Drawer */}
+      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
+        <SheetContent side='right' className='w-full sm:max-w-sm'>
+          <SheetHeader>
+            <SheetTitle>New Unit</SheetTitle>
+          </SheetHeader>
+          <div className='px-4'>
+            <Form {...unitForm}>
+              <form
+                onSubmit={(unitForm.handleSubmit as any)(submitUnit)}
+                className='space-y-4'
+              >
+                <FormField
+                  control={(unitForm as any).control}
+                  name='unitNumber'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Unit number</FormLabel>
+                      <FormControl>
+                        <Input placeholder='e.g., A-101' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={(unitForm as any).control}
+                  name='isListed'
+                  render={({ field }) => (
+                    <FormItem className='flex items-center justify-between rounded-md border p-3'>
+                      <div>
+                        <FormLabel>Listed</FormLabel>
+                      </div>
+                      <FormControl>
+                        <input
+                          type='checkbox'
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button type='submit'>Create unit</Button>
+              </form>
+            </Form>
           </div>
         </SheetContent>
       </Sheet>

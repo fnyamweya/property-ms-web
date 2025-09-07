@@ -12,6 +12,9 @@ export const ENDPOINTS = {
   LOGOUT: 'logout',
   GET_USERS: 'getUsers',
   CREATE_USER: 'createUser',
+  GET_USER_ORGANIZATIONS: 'getUserOrganizations',
+  ADD_ORGANIZATION_MEMBER: 'addOrganizationMember',
+  CREATE_ORGANIZATION: 'createOrganization',
 
   // Locations
   GET_LOCATIONS: 'getLocations',
@@ -39,6 +42,28 @@ export const ENDPOINTS = {
   DELETE_PROPERTY_UNIT: 'deletePropertyUnit',
   RESTORE_PROPERTY_UNIT: 'restorePropertyUnit',
   GET_PROPERTY_UNIT_BY_NUMBER: 'getPropertyUnitByNumber',
+  GET_UNIT_LEASES: 'getUnitLeases',
+  GET_TENANT_LEASES: 'getTenantLeases',
+  CREATE_TENANT: 'createTenant',
+  CREATE_TENANT_WITH_USER: 'createTenantWithUser',
+
+  // Org-scoped helper endpoints
+  TENANTS_MY_ORGS: 'tenantsMyOrgs',
+  REQUESTS_MY_ORGS: 'requestsMyOrgs',
+  SEND_SMS: 'sendSms',
+
+  // Lease mutations
+  ADD_UNIT_LEASE: 'addUnitLease',
+  UPDATE_LEASE: 'updateLease',
+  GET_LEASE_BY_ID: 'getLeaseById',
+  // Reports
+  RENT_ROLL: 'rentRoll',
+  ARREARS: 'arrears',
+  LEASE_LEDGER: 'leaseLedger',
+  RENT_ROLL_CSV: 'rentRollCsv',
+  RENT_ROLL_TAX_CSV: 'rentRollTaxCsv',
+  ARREARS_CSV: 'arrearsCsv',
+  ARREARS_TAX_CSV: 'arrearsTaxCsv',
 } as const
 
 export type EndpointKey = keyof typeof ENDPOINTS

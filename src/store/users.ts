@@ -1,49 +1,130 @@
-/*
- * User store slice. Maintains a collection of users along with loading and
- * error state. Provides an async action for fetching a paginated list of
- * users from the backend. Consumers can use this hook directly or via
- * selectors in specialised hooks.
- */
 import { apiClient } from '@/api'
-import type { User } from '@/types/user'
+import type {
+  User,
+  UsersListResponse,
+  CreateUserPayload,
+  CreateUserResponse,
+} from '@/types/user'
 import { create } from 'zustand'
-import { parseError } from '@/utils/errorParser'
 import { ENDPOINTS } from '@/constants/endpoints'
+// ✅ Zod schemas for runtime validation of the /users wrapper.
+import { userListSchema } from '@/features/users/data/schema'
 
-export type UsersStatus = 'idle' | 'loading' | 'error'
+type LoadStatus = 'idle' | 'loading' | 'error'
 
 interface UsersState {
-  users: User[]
-  status: UsersStatus
+  items: User[]
+  status: LoadStatus
   error?: string
-  /**
-   * Fetch a list of users from the API. Accepts optional pagination
-   * parameters which are forwarded as query parameters on the request. On
-   * success the returned users are stored; on error the message is
-   * captured.
-   */
-  fetchUsers: (params?: { page?: number; limit?: number }) => Promise<void>
+
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+
+  // filters/sort (server-side ready; optional)
+  q?: string
+  sort?: string
+
+  fetchUsers: (args?: {
+    page?: number
+    limit?: number
+    q?: string
+    sort?: string
+  }) => Promise<void>
+
+  createStatus: LoadStatus
+  createError?: string
+  createUser: (payload: CreateUserPayload) => Promise<User>
 }
 
-export const useUsersStore = create<UsersState>((set) => ({
-  users: [],
+export const useUsersStore = create<UsersState>((set, get) => ({
+  items: [],
   status: 'idle',
-  error: undefined,
-  async fetchUsers(params?: { page?: number; limit?: number }) {
+  page: 1,
+  limit: 10,
+  total: 0,
+  totalPages: 0,
+
+  fetchUsers: async (args) => {
+    const state = get()
+    const page = args?.page ?? state.page
+    const limit = args?.limit ?? state.limit
+    const q = args?.q ?? state.q
+    const sort = args?.sort ?? state.sort
+
     set({ status: 'loading', error: undefined })
     try {
-      const data = await apiClient.request<User[]>({
+      // Ask ApiClient for unknown; we'll validate with Zod.
+      const resUnknown = await apiClient.request<unknown>({
+        endpointKey: ENDPOINTS.GET_USERS,
+        method: 'GET',
+        queryParams: { page, limit, q, sort },
+      })
+
+      // Two safe paths:
+      // 1) Expected wrapper { apiVersion, kind, data, pagination, ... }
+      // 2) Defensive: some backends return a raw array
+      if (Array.isArray(resUnknown)) {
+        const data = resUnknown as User[]
+        set({
+          items: data,
+          status: 'idle',
+          page,
+          limit,
+          total: data.length,
+          totalPages: 1,
+          q,
+          sort,
+        })
+        return
+      }
+
+      const parsed = userListSchema.parse(resUnknown) as UsersListResponse
+      set({
+        items: parsed.data,
+        status: 'idle',
+        page: parsed.pagination?.page ?? page,
+        limit: parsed.pagination?.limit ?? limit,
+        total: parsed.pagination?.total ?? parsed.data.length,
+        totalPages: parsed.pagination?.totalPages ?? 1,
+        q,
+        sort,
+      })
+    } catch (err: any) {
+      set({
+        status: 'error',
+        error:
+          err?.message ??
+          (typeof err === 'string' ? err : 'Failed to load users'),
+      })
+    }
+  },
+
+  createStatus: 'idle',
+  createUser: async (payload) => {
+    set({ createStatus: 'loading', createError: undefined })
+    try {
+      const res = await apiClient.request<CreateUserResponse>({
         endpointKey: ENDPOINTS.CREATE_USER,
         method: 'POST',
-        body: {
-          page: params?.page ?? 1,
-          limit: params?.limit ?? 10,
-        },
-        queryParams: params as any,
+        body: payload,
+        headers: { 'Content-Type': 'application/json' },
       })
-      set({ users: data, status: 'idle', error: undefined })
-    } catch (err) {
-      set({ status: 'error', error: parseError(err) })
+
+      // Optimistic insert at top
+      set((s) => ({
+        items: [res.data, ...s.items],
+        createStatus: 'idle',
+      }))
+      return res.data
+    } catch (err: any) {
+      set({
+        createStatus: 'error',
+        createError:
+          err?.message ?? (typeof err === 'string' ? err : 'Create failed'),
+      })
+      throw err
     }
   },
 }))

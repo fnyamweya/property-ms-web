@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { EmptyState } from '../../payments/components/empty-state'
 import type { BalanceRow as Row } from '../types'
 import { BalanceRow } from './balances-row'

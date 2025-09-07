@@ -15,14 +15,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 export function ProfileDropdown() {
-  const { user, fetchMe, logout } = useAuth()
+  const { user, ensureMe, logout } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!user) {
-      fetchMe().catch(() => {})
+      // Call once; ensureMe coalesces concurrent calls and avoids loops
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      ensureMe()
     }
-  }, [user, fetchMe])
+  }, [user, ensureMe])
 
   const handleLogout = () => {
     logout()
@@ -34,7 +36,7 @@ export function ProfileDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant='ghost' className='h-8 w-8 rounded-full'>
           <Avatar className='h-8 w-8'>
-            <AvatarImage src={user?.avatar} alt={user?.fullName ?? ''} />
+            <AvatarImage src={user?.avatar ?? undefined} alt={user?.fullName ?? ''} />
             <AvatarFallback>{user?.fullName?.[0] ?? ''}</AvatarFallback>
           </Avatar>
         </Button>
@@ -69,7 +71,7 @@ export function ProfileDropdown() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to='/teams/new'>New Team</Link>
+            <Link to='/settings/account'>New Team</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

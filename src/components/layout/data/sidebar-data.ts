@@ -3,29 +3,15 @@ import {
   IconChecklist,
   IconHelp,
   IconLayoutDashboard,
-  IconMessages,
   IconNotification,
-  IconPackages,
   IconPalette,
   IconSettings,
   IconTool,
   IconUserCog,
   IconUsers,
   IconMapPin,
-  IconHome,
 } from '@tabler/icons-react'
-import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-  Cog,
-  GitPullRequestArrow,
-  Antenna,
-  Building,
-  Calendar,
-  Signature,
-} from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
+import { Command, Building, Signature } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -97,27 +83,12 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'Maintenance',
-          // badge: '3',
-          icon: Cog,
           items: [
             {
               title: 'Requests',
-              url: '/maintenance',
-            },
-            {
-              title: 'Recurring',
-              url: '/maintenance/recurring',
-            },
-            {
-              title: 'Logs',
-              url: '/maintenance/logs',
+              url: '/properties/$id/mr-requests',
             },
           ],
-        },
-        {
-          title: 'Calendar',
-          url: '/calendar',
-          icon: Calendar,
         },
         // {
         //   title: 'Apps',
