@@ -1,8 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { IconCirclePlusFilled, IconMail } from '@tabler/icons-react'
 import { ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,

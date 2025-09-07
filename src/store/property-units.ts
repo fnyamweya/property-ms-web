@@ -23,14 +23,6 @@ export type UnitsListParams = {
   includeRequests?: boolean
 }
 
-/** Flexible page payloads your backend(s) might return */
-type FlexiblePage<T> =
-  | { items: T[]; total?: number; page?: number; limit?: number }
-  | { data: T[]; total?: number; page?: number; limit?: number }
-  | { rows: T[]; total?: number; page?: number; limit?: number }
-  | { results: T[]; total?: number; page?: number; limit?: number }
-  | T[]
-
 /** Normalizes many page shapes AND unwraps { data: {...} } envelopes */
 function normalizePage<T>(payload: unknown): {
   items: T[]
@@ -134,6 +126,7 @@ function toUIUnit(u: PropertyUnit): Unit {
     leaseEndDate: (u as any).leaseEndDate
       ? new Date((u as any).leaseEndDate)
       : undefined,
+    metadata: md as any,
   }
 }
 

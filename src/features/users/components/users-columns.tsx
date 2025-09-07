@@ -1,14 +1,17 @@
+'use client'
+
 import { ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import LongText from '@/components/long-text'
-import { callTypes, userTypes } from '../data/data'
+import { callTypes } from '../data/data'
 import { User } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 
 export const columns: ColumnDef<User>[] = [
+  // Selection
   {
     id: 'select',
     header: ({ table }) => (
@@ -39,14 +42,18 @@ export const columns: ColumnDef<User>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+
+  // Full name (firstName + lastName)
   {
-    accessorKey: 'username',
+    id: 'fullName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Username' />
+      <DataTableColumnHeader column={column} title='Name' />
     ),
-    cell: ({ row }) => (
-      <LongText className='max-w-36'>{row.getValue('username')}</LongText>
-    ),
+    cell: ({ row }) => {
+      const { firstName, lastName } = row.original
+      const fullName = [firstName, lastName].filter(Boolean).join(' ')
+      return <LongText className='max-w-36'>{fullName || '—'}</LongText>
+    },
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)] lg:drop-shadow-none',
@@ -56,85 +63,70 @@ export const columns: ColumnDef<User>[] = [
     },
     enableHiding: false,
   },
-  {
-    id: 'fullName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Name' />
-    ),
-    cell: ({ row }) => {
-      const { firstName, lastName } = row.original
-      const fullName = `${firstName} ${lastName}`
-      return <LongText className='max-w-36'>{fullName}</LongText>
-    },
-    meta: { className: 'w-36' },
-  },
+
+  // Email
   {
     accessorKey: 'email',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Email' />
     ),
     cell: ({ row }) => (
-      <div className='w-fit text-nowrap'>{row.getValue('email')}</div>
+      <div className='w-fit text-nowrap'>{row.getValue('email') || '—'}</div>
     ),
   },
+
+  // Phone
   {
-    accessorKey: 'phoneNumber',
+    accessorKey: 'phone',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Phone Number' />
+      <DataTableColumnHeader column={column} title='Phone' />
     ),
-    cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
+    cell: ({ row }) => <div>{row.getValue('phone') || '—'}</div>,
     enableSorting: false,
   },
+
+  // Status (badge with color from callTypes)
   {
     accessorKey: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Status' />
     ),
     cell: ({ row }) => {
-      const { status } = row.original
-      const badgeColor = callTypes.get(status)
+      const status = String(row.getValue('status') ?? '')
+      const badgeColor =
+        callTypes.get?.(status) ?? // supports either Map or plain obj via .get
+        (typeof callTypes === 'object' ? (callTypes as any)[status] : undefined)
+
       return (
         <div className='flex space-x-2'>
           <Badge variant='outline' className={cn('capitalize', badgeColor)}>
-            {row.getValue('status')}
+            {status || '—'}
           </Badge>
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    filterFn: (row, id, value) => value?.includes?.(row.getValue(id)),
     enableHiding: false,
     enableSorting: false,
   },
+
+  // Created At
   {
-    accessorKey: 'role',
+    accessorKey: 'createdAt',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Role' />
+      <DataTableColumnHeader column={column} title='Created' />
     ),
     cell: ({ row }) => {
-      const { role } = row.original
-      const userType = userTypes.find(({ value }) => value === role)
-
-      if (!userType) {
-        return null
-      }
-
-      return (
-        <div className='flex items-center gap-x-2'>
-          {userType.icon && (
-            <userType.icon size={16} className='text-muted-foreground' />
-          )}
-          <span className='text-sm capitalize'>{row.getValue('role')}</span>
-        </div>
-      )
+      const raw = row.getValue('createdAt') as string | undefined
+      if (!raw) return <span>—</span>
+      const d = new Date(raw)
+      // Prefer locale-aware short datetime; tweak to taste
+      return <span className='text-muted-foreground'>{d.toLocaleString()}</span>
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    enableSorting: false,
-    enableHiding: false,
+    meta: { className: 'min-w-[180px]' },
   },
+
+  // Row actions
   {
     id: 'actions',
     cell: DataTableRowActions,

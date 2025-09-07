@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { IconCirclePlusFilled, IconMail } from '@tabler/icons-react'
+import { IconCirclePlusFilled } from '@tabler/icons-react'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar'
 import { NavGroup } from '@/components/layout/nav-group'
 import { NavUser } from '@/components/layout/nav-user'
-import { TeamSwitcher } from '@/components/layout/team-switcher'
+import { OrganizationSwitcher } from '@/components/layout/organization-switcher'
 import { sidebarData } from './data/sidebar-data'
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -28,7 +28,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' variant='floating' {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={sidebarData.teams} />
+        <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenuItem className='flex flex-col gap-2 px-4'>
@@ -46,7 +46,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className='flex flex-col gap-2 px-4'>
         {/* user info */}
-        <NavUser user={user ?? sidebarData.user} />
+        <NavUser
+          user={
+            user
+              ? {
+                  name: user.fullName || `${user.firstName} ${user.lastName}`,
+                  email: user.email,
+                  avatar: user.avatar ?? undefined,
+                }
+              : sidebarData.user
+          }
+        />
         {/* logout button */}
         {user && (
           <Button

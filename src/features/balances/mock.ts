@@ -1,6 +1,6 @@
 import type { BalanceRow } from './types'
 
-export const mockBalances: BalanceRow[] = [
+const baseBalances = [
   {
     id: 'bal_001',
     kind: 'AR',
@@ -133,4 +133,9 @@ export const mockBalances: BalanceRow[] = [
       },
     ],
   },
-].map((r) => ({ ...r, aging: r.aging ?? {} }))
+] satisfies BalanceRow[]
+
+export const mockBalances: BalanceRow[] = baseBalances.map((r) => ({
+  ...r,
+  aging: (r as any).aging ?? {},
+})) as BalanceRow[]

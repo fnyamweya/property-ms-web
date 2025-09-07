@@ -136,7 +136,14 @@ export function LocationMutateDrawer({ open, onOpenChange, currentRow }: Props) 
                 <FormItem className='space-y-1'>
                   <FormLabel>Town</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='e.g. Nairobi' />
+                    <Input
+                      placeholder='e.g. Nairobi'
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,7 +156,14 @@ export function LocationMutateDrawer({ open, onOpenChange, currentRow }: Props) 
                 <FormItem className='space-y-1'>
                   <FormLabel>Street</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='e.g. Parklands Rd' />
+                    <Input
+                      placeholder='e.g. Parklands Rd'
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -163,9 +177,13 @@ export function LocationMutateDrawer({ open, onOpenChange, currentRow }: Props) 
                   <FormLabel>Coverage Details</FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
                       placeholder='Describe the coverage area…'
                       className='min-h-20'
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
                     />
                   </FormControl>
                   <FormMessage />

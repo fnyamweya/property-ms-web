@@ -82,12 +82,12 @@ function mapUnitToUI(u: PropertyUnit, propertyName: string) {
 }
 
 export function PropertiesExpandableTable() {
-  const { properties, fetchStatus, fetchError, fetchProperties } =
+  const { properties, fetchStatus, fetchProperties } =
     usePropertiesStore(
       useShallow((s) => ({
         properties: s.properties,
         fetchStatus: s.fetchStatus,
-        fetchError: s.fetchError,
+        // fetchError: s.fetchError,
         fetchProperties: s.fetchProperties,
       }))
     )
@@ -99,7 +99,7 @@ export function PropertiesExpandableTable() {
   }, [properties?.length, fetchStatus, fetchProperties])
 
   const items = React.useMemo<UIProperty[]>(
-    () => (properties ?? []).map(toUI),
+    () => (properties ?? []).map((p) => toUI(p)),
     [properties]
   )
 
@@ -179,10 +179,10 @@ function PropertySummaryRow({
   )
 
   const totalUnits = total || unitsForProperty.length
-  const occupied = unitsForProperty.filter((u) => u.tenantId).length
+  const occupied = unitsForProperty.filter((u: any) => u.tenantId).length
   const occPct = totalUnits ? Math.round((occupied / totalUnits) * 100) : 0
   const income = unitsForProperty.reduce(
-    (sum, u) => sum + Number((u as any)?.currentLeaseAmount ?? 0),
+    (sum: number, u: any) => sum + Number((u as any)?.currentLeaseAmount ?? 0),
     0
   )
 
@@ -229,7 +229,7 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
   const { units } = usePropertyUnits()
 
   const rows = React.useMemo(
-    () => units.map((u) => mapUnitToUI(u, property.name)),
+    () => units.map((u: PropertyUnit) => mapUnitToUI(u, property.name)),
     [units, property.name]
   )
 
@@ -252,7 +252,7 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((u) => (
+                {rows.map((u: any) => (
                   <TableRow key={u.id}>
                     <TableCell>
                       <div className='font-medium'>#{u.unitIdentifier}</div>
@@ -289,8 +289,8 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
                           size='sm'
                           onClick={() =>
                             navigate({
-                              to: '/properties/$pid/units/$uid/tenants',
-                              params: { pid: property.id, uid: u.id },
+                              to: '/properties/$id/tenants',
+                              params: { id: property.id },
                             })
                           }
                         >
@@ -302,8 +302,8 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
                           size='sm'
                           onClick={() =>
                             navigate({
-                              to: '/properties/$pid/units/$uid/maintenance',
-                              params: { pid: property.id, uid: u.id },
+                              to: '/properties/$id/mr-requests',
+                              params: { id: property.id },
                             })
                           }
                         >
@@ -314,8 +314,8 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
                           size='sm'
                           onClick={() =>
                             navigate({
-                              to: '/properties/$pid/units/$uid/accounting',
-                              params: { pid: property.id, uid: u.id },
+                              to: '/properties/$id/financials',
+                              params: { id: property.id },
                             })
                           }
                         >
@@ -344,7 +344,7 @@ function ExpandableUnitsRow({ property }: { property: UIProperty }) {
               variant='secondary'
               onClick={() =>
                 navigate({
-                  to: '/properties/$id/overview',
+                  to: '/properties/$id/units',
                   params: { id: property.id },
                 })
               }

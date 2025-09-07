@@ -31,6 +31,11 @@ function toBackendCreatePayload(dto: CreatePropertyDTO) {
     config: dto.config ?? {},
     // UI uses propertyType; backend expects type
     type: (dto as any).propertyType ?? (dto as any).type ?? 'Unknown',
+    // Prefer explicit ownerId when provided, fallback to owners[0].id
+    ...(dto as any).ownerId ? { ownerId: (dto as any).ownerId } : {},
+    ...((Array.isArray((dto as any).owners) && (dto as any).owners.length)
+      ? { owners: (dto as any).owners }
+      : {}),
   }
 }
 
@@ -43,6 +48,7 @@ function toBackendUpdatePayload(dto: UpdatePropertyDTO) {
   if ((dto as any).propertyType !== undefined)
     out.type = (dto as any).propertyType
   if ((dto as any).type !== undefined) out.type = (dto as any).type
+  if ((dto as any).organizationId !== undefined) out.organizationId = (dto as any).organizationId
   return out
 }
 
@@ -156,7 +162,7 @@ export const usePropertiesStore = create<PropertiesState>((set, get) => ({
   },
 
   async fetchProperties(params) {
-    set({ fetchStatus: 'loading', fetchError: undefined })
+    set({ fetchStatus: 'loading', fetchError: undefined, properties: [], current: undefined, total: 0 })
     try {
       const raw = await apiClient.request<unknown>({
         endpointKey: ENDPOINTS.GET_PROPERTIES,
@@ -164,6 +170,7 @@ export const usePropertiesStore = create<PropertiesState>((set, get) => ({
         queryParams: {
           page: params?.page,
           limit: params?.limit,
+          // Include orgId as a query param as some backends require it even when header is present
           organizationId: params?.organizationId,
           ownerId: params?.ownerId,
           // If your API wants 1/0 instead of booleans, do:
@@ -175,7 +182,15 @@ export const usePropertiesStore = create<PropertiesState>((set, get) => ({
       })
 
       const page = normalizePage<Property>(raw)
-      const items = page.items ?? []
+      let items = page.items ?? []
+      // Client-side filter if backend ignores org header/param but includes org id on items
+      if (params?.organizationId) {
+        const oid = String(params.organizationId)
+        items = items.filter((p: any) => {
+          const pid = (p?.organizationId ?? (p as any)?.organization_id ?? (p as any)?.orgId) as string | undefined
+          return pid ? String(pid) === oid : true
+        })
+      }
 
       set({
         properties: items,

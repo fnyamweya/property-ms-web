@@ -24,6 +24,10 @@ interface AuthState {
   refreshToken?: string
   status: AuthStatus
   error?: string
+  // prevent repeated /me fetches and coalesce concurrent calls
+  meFetched?: boolean
+  ensureMe: () => Promise<void>
+  appendOrganization: (org: { id: string; name: string; plan?: string | null; logoUrl?: string | null }) => void
   /**
    * Perform a login by sending credentials to the API. On success the
    * returned tokens are stored both in the ApiClient and this store. On
@@ -62,6 +66,11 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: undefined,
       status: 'idle',
       error: undefined,
+      meFetched: false,
+      // internal promise holder (not persisted)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      _mePromise: null,
 
       async login(credentials: LoginRequest) {
         set({ status: 'loading', error: undefined })
@@ -143,19 +152,87 @@ export const useAuthStore = create<AuthState>()(
         try {
           const res = await apiClient.request<{ message: string; data: User }>({
             endpointKey: ENDPOINTS.ME,
-            method: 'POST',
+            method: 'GET',
             headers: {
               Authorization: `Bearer ${get().accessToken}`,
             },
+            returnResponse: true,
           })
-          set({ user: res.data.data as User, status: 'idle', error: undefined })
+          const data = (res as any).data as { message: string; data: User }
+          const headers = (res as any).headers as Record<string, string | undefined>
+          const bodyUser = data.data as User
+          const hintedOrgId =
+            (headers && (headers['x-current-org-id'] as string | undefined)) ||
+            bodyUser.currentOrganizationId ||
+            undefined
+          set({
+            user: bodyUser,
+            status: 'idle',
+            error: undefined,
+            meFetched: true,
+          })
+          if (hintedOrgId) {
+            try {
+              // Avoid importing the organizations store to prevent cycles
+              apiClient.setOrgId(hintedOrgId)
+            } catch {}
+          }
         } catch (err) {
           set({ status: 'error', error: parseError(err) })
         }
       },
+
+      async ensureMe() {
+        const state = get()
+        if (state.user || state.meFetched) return
+        // reuse in-flight call if present
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (state._mePromise) return state._mePromise
+        const p = state
+          .fetchMe()
+          .catch(() => {})
+          .finally(() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            set({ _mePromise: null })
+          })
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        set({ _mePromise: p })
+        return p
+      },
+
+      appendOrganization(org) {
+        set((s) => {
+          const current = s.user as any
+          if (!current) return s as any
+          const nextOrgs = Array.isArray(current.organizations)
+            ? [...current.organizations, org]
+            : [org]
+          const nextIds = Array.isArray(current.organizationIds)
+            ? [...current.organizationIds, org.id]
+            : [org.id]
+          return {
+            ...s,
+            user: { ...current, organizations: nextOrgs, organizationIds: nextIds },
+          }
+        })
+      },
     }),
     {
       name: 'auth',
+      // Ensure the ApiClient has tokens after persistence rehydrates
+      onRehydrateStorage: () => (state, error) => {
+        if (error) return
+        const accessToken = state?.accessToken
+        const refreshToken = state?.refreshToken
+        if (accessToken && refreshToken) {
+          try {
+            apiClient.setTokens({ accessToken, refreshToken })
+          } catch {}
+        }
+      },
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,

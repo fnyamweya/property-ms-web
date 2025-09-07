@@ -16,7 +16,6 @@ import {
   Undo2,
   Trash2,
   AlertTriangle,
-  CircleDot,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -38,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 
 type MRStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed'
 type MRPriority = 'Low' | 'Medium' | 'High' | 'Urgent'
@@ -157,20 +155,20 @@ export function UnitMRRequests({
   }, [requests, unitIdentifier, status, priority, q, sort])
 
   const counts = React.useMemo(() => {
-    const base = {
+    const base: Record<'All' | MRStatus, number> = {
       All: 0,
       Open: 0,
       'In Progress': 0,
       Resolved: 0,
       Closed: 0,
-    } as Record<'All', number> | Record<MRStatus, number>
+    }
     for (const r of requests) {
       if (!unitIdentifier || r.unitIdentifier === unitIdentifier) {
-        ;(base as any).All++
-        ;(base as any)[r.status]++
+        base.All++
+        base[r.status]++
       }
     }
-    return base as Record<'All' | MRStatus, number>
+    return base
   }, [requests, unitIdentifier])
 
   const showEmpty = data.length === 0
@@ -188,9 +186,9 @@ export function UnitMRRequests({
                 size='sm'
                 onClick={() =>
                   navigate({
-                    to: '/properties/$pid/units/$uid',
-                    params: { pid, uid },
-                    // If you have a details route, adjust accordingly
+                    // ✅ match your file route union
+                    to: '/properties/$id/units',
+                    params: { id: pid },
                   })
                 }
                 className='gap-1 px-2'
@@ -233,7 +231,10 @@ export function UnitMRRequests({
 
           <div className='flex items-center gap-2'>
             <Filter className='text-muted-foreground h-4 w-4' />
-            <Select value={status} onValueChange={(v: any) => setStatus(v)}>
+            <Select
+              value={status}
+              onValueChange={(v: 'All' | MRStatus) => setStatus(v)}
+            >
               <SelectTrigger className='w-[170px]'>
                 <SelectValue placeholder='Status' />
               </SelectTrigger>
@@ -250,7 +251,10 @@ export function UnitMRRequests({
               </SelectContent>
             </Select>
 
-            <Select value={priority} onValueChange={(v: any) => setPriority(v)}>
+            <Select
+              value={priority}
+              onValueChange={(v: 'All' | MRPriority) => setPriority(v)}
+            >
               <SelectTrigger className='w-[170px]'>
                 <SelectValue placeholder='Priority' />
               </SelectTrigger>
@@ -263,7 +267,12 @@ export function UnitMRRequests({
               </SelectContent>
             </Select>
 
-            <Select value={sort} onValueChange={(v: any) => setSort(v)}>
+            <Select
+              value={sort}
+              onValueChange={(v: 'newest' | 'priority' | 'status') =>
+                setSort(v)
+              }
+            >
               <SelectTrigger className='w-[170px]'>
                 <SelectValue placeholder='Sort by' />
               </SelectTrigger>

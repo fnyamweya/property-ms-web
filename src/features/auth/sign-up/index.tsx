@@ -13,13 +13,13 @@ import { SignUpWizard } from './components/sign-up-wizard'
 export default function SignUp() {
   return (
     <AuthLayout>
-      <Card className='gap-4'>
+      <Card className='gap-4 w-full sm:max-w-3xl'>
         <CardHeader>
-          <CardTitle className='text-lg tracking-tight'>
+          <CardTitle className='text-2xl tracking-tight'>
             Create an account
           </CardTitle>
           <CardDescription>
-            Enter your email and password to create an account. <br />
+            A quick guided setup to get you productive: account → organization → invite your team. <br />
             Already have an account?{' '}
             <Link
               to='/sign-in'

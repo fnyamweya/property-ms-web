@@ -1,3 +1,8 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useUsers } from '@/hooks/useUsers'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -8,12 +13,14 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersTable } from './components/users-table'
 import UsersProvider from './context/users-context'
-import { userListSchema } from './data/schema'
-import { users } from './data/users'
 
 export default function Users() {
-  // Parse user list
-  const userList = userListSchema.parse(users)
+  const { users, status, error, limit, fetchUsers } =
+    useUsers()
+
+  useEffect(() => {
+    fetchUsers({ page: 1, limit })
+  }, [])
 
   return (
     <UsersProvider>
@@ -35,8 +42,15 @@ export default function Users() {
           </div>
           <UsersPrimaryButtons />
         </div>
+
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
-          <UsersTable data={userList} columns={columns} />
+          {status === 'loading' ? (
+            <Skeleton className='h-[320px] w-full' />
+          ) : status === 'error' ? (
+            <div className='text-red-600'>Error: {error}</div>
+          ) : (
+            <UsersTable data={users} columns={columns} />
+          )}
         </div>
       </Main>
 

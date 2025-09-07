@@ -74,6 +74,10 @@ export interface RequestOptions {
    * ApiConfig.defaultHeaders; per‑call headers override defaults.
    */
   headers?: Record<string, string>
+  /**
+   * If true, returns the full AxiosResponse instead of just `data`.
+   */
+  returnResponse?: boolean
 }
 
 /**

@@ -39,6 +39,8 @@ export class ApiClient {
 
   private refreshToken?: string
 
+  private organizationId?: string
+
   /**
    * A promise representing an in‑flight refresh call. Only one refresh
    * operation should happen at any time; concurrent 401 responses queue
@@ -62,6 +64,14 @@ export class ApiClient {
       if (this.accessToken) {
         ;(req.headers as any) = req.headers || {}
         ;(req.headers as any).Authorization = `Bearer ${this.accessToken}`
+      }
+      if (this.organizationId) {
+        ;(req.headers as any) = req.headers || {}
+        // Send both casings to be safe against case-sensitive backends
+        ;(req.headers as any)['x-org-id'] = this.organizationId
+        ;(req.headers as any)['X-Org-Id'] = this.organizationId
+        ;(req.headers as any)['x-organization-id'] = this.organizationId
+        ;(req.headers as any)['X-Organization-Id'] = this.organizationId
       }
       return req
     })
@@ -123,6 +133,26 @@ export class ApiClient {
   public clearTokens(): void {
     this.accessToken = undefined
     this.refreshToken = undefined
+  }
+
+  /**
+   * Set the current organization context for all subsequent requests.
+   */
+  public setOrgId(orgId?: string): void {
+    this.organizationId = orgId
+    const headers: any = (this.axios.defaults.headers as any)
+    if (orgId) {
+      headers.common = headers.common || {}
+      headers.common['x-org-id'] = orgId
+      headers.common['X-Org-Id'] = orgId
+      headers.common['x-organization-id'] = orgId
+      headers.common['X-Organization-Id'] = orgId
+    } else if (headers.common) {
+      delete headers.common['x-org-id']
+      delete headers.common['X-Org-Id']
+      delete headers.common['x-organization-id']
+      delete headers.common['X-Organization-Id']
+    }
   }
 
   /**
@@ -210,6 +240,7 @@ export class ApiClient {
       queryParams,
       body,
       headers,
+      returnResponse,
     } = options
     const url = this.buildUrl(endpointKey as string, pathParams, queryParams)
     const isIdempotent = ['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())
@@ -225,7 +256,7 @@ export class ApiClient {
           data: body,
           headers,
         })
-        return response.data as T
+        return (returnResponse ? (response as any) : (response.data as T))
       } catch (err) {
         const error = err as AxiosError
         // Retry network errors on idempotent requests.

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Properties from '@/features/properties'
+import Properties from '@/features/portfolio/properties'
 
 /**
  * Route definition for the property management page. Renders the
